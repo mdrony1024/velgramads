@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velgram Ads Pro</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body class="bg-[#0f172a] text-white">
+
+    <!-- Header Section -->
+    <div class="p-8 bg-gradient-to-r from-blue-600 to-indigo-700 rounded-b-[40px] shadow-2xl text-center">
+        <h1 class="text-2xl font-black italic tracking-tighter text-white">VELGRAM ADS</h1>
+        <p class="text-[10px] opacity-70 uppercase tracking-[3px] mt-1 font-bold">Premium Ad Network</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="p-6 -mt-10">
+        <!-- Points Card -->
+        <div class="bg-[#1e293b] p-8 rounded-[2.5rem] text-center border border-white/10 shadow-xl">
+            <p class="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Available Points</p>
+            <h2 id="display-points" class="text-5xl font-black text-blue-500 mt-2">--</h2>
+        </div>
+
+        <!-- Buttons -->
+        <div class="grid grid-cols-2 gap-4 mt-8">
+            <div class="bg-slate-800/50 p-6 rounded-3xl border border-white/5 flex flex-col items-center gap-2">
+                <i class='bx bxs-megaphone text-3xl text-emerald-400'></i>
+                <span class="text-[10px] font-bold uppercase text-slate-400">Earn</span>
+            </div>
+            <div class="bg-slate-800/50 p-6 rounded-3xl border border-white/5 flex flex-col items-center gap-2">
+                <i class='bx bxs-rocket text-3xl text-blue-400'></i>
+                <span class="text-[10px] font-bold uppercase text-slate-400">Promote</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        const userId = tg.initDataUnsafe?.user?.id || 'test_user';
+
+        async function fetchPoints() {
+            try {
+                // ভেরিয়েবল ঠিক রাখতে আমরা /api/user/ রাউট ব্যবহার করছি
+                const res = await fetch(`/api/user/${userId}`);
+                const data = await res.json();
+                document.getElementById('display-points').innerText = data.points;
+            } catch (e) {
+                document.getElementById('display-points').innerText = "0";
+            }
+        }
+
+        tg.ready();
+        tg.expand();
+        fetchPoints();
+    </script>
+</body>
+</html>
