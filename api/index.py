@@ -1,5 +1,6 @@
 import os
 from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
 import telebot
 from pymongo import MongoClient
 
@@ -13,7 +14,17 @@ db = client.velgram_ads
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(BOT_TOKEN, threaded=False)
 
-@app.get("/api/user/{user_id}")
+# ১. এই অংশটি নতুন যোগ করা হয়েছে (যাতে index.html দেখা যায়)
+@app.get("/", response_class=HTMLResponse)
+async def read_root():
+    try:
+        with open("public/index.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except:
+        return "<h1>Index file not found in public folder</h1>"
+
+# ২. ইউজার ডাটা পাওয়ার এপিআই (রাউট থেকে /api বাদ দেওয়া হয়েছে)
+@app.get("/user/{user_id}")
 async def get_user(user_id: str):
     user = db.users.find_one({"user_id": user_id})
     if not user:
@@ -22,15 +33,8 @@ async def get_user(user_id: str):
     user["_id"] = str(user["_id"])
     return user
 
-@bot.message_handler(commands=['start'])
-def start(message):
-    markup = telebot.types.InlineKeyboardMarkup()
-    # এখানে আপনার ভেরসেল লিঙ্ক দিন
-    web_app = telebot.types.WebAppInfo(url="https://velgramads.vercel.app/")
-    markup.add(telebot.types.InlineKeyboardButton("Open Ads Manager 🚀", web_app=web_app))
-    bot.send_message(message.chat.id, "স্বাগতম! আপনার এডস ম্যানেজ করতে নিচের বাটন ক্লিক করুন।", reply_markup=markup)
-
-@app.post("/api/index")
+# ৩. টেলিগ্রাম বটের ওয়েবহুক রাউট
+@app.post("/webhook")
 async def handle_webhook(request: Request):
     payload = await request.json()
     update = telebot.types.Update.de_json(payload)
