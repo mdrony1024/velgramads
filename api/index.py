@@ -10,7 +10,7 @@ MONGO_URI = os.getenv("MONGO_URI")
 client = MongoClient(MONGO_URI)
 db = client.velgram_ads
 
-BOT_TOKEN = os.getenv("8392191094:AAGW88M30Qh8s1Sl51X7J36EY8GoH3SCPVs")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(BOT_TOKEN, threaded=False)
 
 @app.get("/api/user/{user_id}")
