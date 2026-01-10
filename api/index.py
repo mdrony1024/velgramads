@@ -15,86 +15,168 @@ db = client.velgram_ads
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(BOT_TOKEN, threaded=False)
 
-# আপনার মডার্ন ডিজাইনের HTML স্ট্রিং
 HTML_CONTENT = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Velgram Ads Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #0f172a; font-family: 'Poppins', sans-serif; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        body { background-color: #020617; font-family: 'Poppins', sans-serif; color: #f8fafc; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .nav-active { color: #3b82f6; }
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .active-section { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .point-box { background: linear-gradient(135deg, #1e40af, #7e22ce); }
     </style>
 </head>
-<body class="text-white">
-    <div class="p-6 bg-gradient-to-r from-blue-600 to-purple-600 rounded-b-[35px] shadow-lg text-center">
-        <h1 class="text-2xl font-bold italic">VELGRAM ADS PRO</h1>
-        <p class="text-[10px] opacity-80 uppercase tracking-widest mt-1">Point Based Ad Network</p>
-    </div>
+<body class="pb-24">
 
-    <div class="p-5">
-        <div class="glass p-8 rounded-[2.5rem] text-center mt-5 border-blue-500/20">
-            <p class="text-xs text-slate-400 uppercase font-bold tracking-widest">My Balance</p>
-            <h2 id="display-points" class="text-5xl font-black text-blue-500 mt-2">--</h2>
-            <p class="text-[10px] text-slate-500 mt-2 italic">Start earning by adding channels</p>
+    <!-- Header & Points -->
+    <div class="p-6 flex justify-between items-center sticky top-0 z-50 bg-[#020617]/80 backdrop-blur-md">
+        <div>
+            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Balance</p>
+            <h2 class="text-2xl font-black text-blue-500 flex items-center gap-1">
+                <i class='bx bxs-zap text-yellow-400'></i> <span id="user-points">--</span>
+            </h2>
         </div>
-
-        <div class="grid grid-cols-2 gap-4 mt-8">
-            <div onclick="alert('Earn system is coming soon!')" class="glass p-6 rounded-3xl flex flex-col items-center gap-2 cursor-pointer active:scale-95 transition-all">
-                <i class='bx bxs-megaphone text-3xl text-emerald-400'></i>
-                <span class="text-[10px] font-bold uppercase">Earn Pts</span>
-            </div>
-            <div onclick="alert('Promote system is coming soon!')" class="glass p-6 rounded-3xl flex flex-col items-center gap-2 cursor-pointer active:scale-95 transition-all">
-                <i class='bx bxs-rocket text-3xl text-blue-400'></i>
-                <span class="text-[10px] font-bold uppercase">Promote</span>
-            </div>
+        <div class="w-10 h-10 rounded-full bg-slate-800 border border-white/10 flex items-center justify-center">
+            <i class='bx bxs-user-circle text-2xl text-slate-400'></i>
         </div>
     </div>
+
+    <!-- Main Content Sections -->
+    <main class="px-5">
+
+        <!-- EARN TAB -->
+        <section id="earn" class="tab-content active-section space-y-6">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-lg italic">My Channels</h3>
+                <button class="bg-blue-600/20 text-blue-400 text-[10px] px-3 py-1.5 rounded-full font-bold border border-blue-500/30">+ Add Channel</button>
+            </div>
+            
+            <div class="glass p-5 rounded-[2.5rem] flex items-center justify-between border-emerald-500/20">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-slate-800 rounded-2xl flex items-center justify-center font-bold text-blue-500">F</div>
+                    <div>
+                        <h4 class="font-bold text-sm">Free Promote Ostad</h4>
+                        <p class="text-[10px] text-emerald-400 font-bold tracking-tighter">● Bot is Active</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-xs font-bold text-slate-400">+50 pts</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROMOTE TAB -->
+        <section id="promote" class="tab-content space-y-5">
+            <h3 class="font-bold text-lg">Promote Your Content</h3>
+            <div class="glass p-6 rounded-[2.5rem] space-y-4">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase ml-2">Post Link</label>
+                    <input type="text" placeholder="https://t.me/channel/123" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none text-sm focus:border-blue-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-2">Total Budget</label>
+                        <input type="number" placeholder="Pts" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase ml-2">Views</label>
+                        <input type="number" placeholder="Target" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none text-sm">
+                    </div>
+                </div>
+                <button class="w-full bg-blue-600 py-4 rounded-2xl font-bold text-sm shadow-xl shadow-blue-600/20">Publish Promotion</button>
+            </div>
+        </section>
+
+        <!-- STATS TAB -->
+        <section id="stats" class="tab-content">
+            <h3 class="font-bold text-lg mb-4">Ad Statistics</h3>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="glass p-5 rounded-[2rem]">
+                    <p class="text-[10px] text-slate-500 font-bold uppercase">Ads Run</p>
+                    <h2 class="text-2xl font-bold">12</h2>
+                </div>
+                <div class="glass p-5 rounded-[2rem]">
+                    <p class="text-[10px] text-slate-500 font-bold uppercase">Earned</p>
+                    <h2 class="text-2xl font-bold">4.2k</h2>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-[#020617]/90 backdrop-blur-2xl border-t border-white/5 flex justify-around p-4 z-50">
+        <button onclick="switchTab('earn')" id="nav-earn" class="flex flex-col items-center gap-1 nav-active">
+            <i class='bx bxs-megaphone text-xl'></i><span class="text-[9px] font-bold">Earn</span>
+        </button>
+        <button onclick="switchTab('promote')" id="nav-promote" class="flex flex-col items-center gap-1 text-slate-500">
+            <i class='bx bxs-rocket text-xl'></i><span class="text-[9px] font-bold">Promote</span>
+        </button>
+        <button onclick="switchTab('stats')" id="nav-stats" class="flex flex-col items-center gap-1 text-slate-500">
+            <i class='bx bxs-bar-chart-alt-2 text-xl'></i><span class="text-[9px] font-bold">Stats</span>
+        </button>
+        <button onclick="switchTab('profile')" id="nav-profile" class="flex flex-col items-center gap-1 text-slate-500">
+            <i class='bx bxs-wallet text-xl'></i><span class="text-[9px] font-bold">Wallet</span>
+        </button>
+    </nav>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
         const userId = tg.initDataUnsafe?.user?.id || 'test_user';
 
-        async function fetchUserData() {
+        // ডাটাবেস থেকে রিয়েল পয়েন্ট আনা
+        async function loadData() {
             try {
-                // আমরা এই পাইথন ফাইলেরই এপিআই ব্যবহার করছি
                 const res = await fetch(`/api/user/${userId}`);
                 const data = await res.json();
-                document.getElementById('display-points').innerText = data.points;
+                document.getElementById('user-points').innerText = data.points;
             } catch (e) {
-                document.getElementById('display-points').innerText = "100";
+                document.getElementById('user-points').innerText = "Err";
             }
         }
 
+        // ট্যাব সুইচিং লজিক
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active-section'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.replace('nav-active', 'text-slate-500'));
+            
+            const target = document.getElementById(tabId);
+            if(target) target.classList.add('active-section');
+            document.getElementById(`nav-${tabId}`).classList.replace('text-slate-500', 'nav-active');
+        }
+
         tg.ready();
-        fetchUserData();
+        loadData();
     </script>
 </body>
 </html>
 """
 
-# ১. মেইন হোমপেজ রাউট (সরাসরি HTML রিটার্ন করবে)
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
     return HTML_CONTENT
 
-# ২. মিনি অ্যাপের জন্য ডাটা এপিআই
 @app.get("/api/user/{user_id}")
 async def get_user(user_id: str):
     user = db.users.find_one({"user_id": user_id})
     if not user:
+        # নতুন ইউজারের জন্য পয়েন্ট ১০০ সেট করা (ডাটাবেসে সেভ হবে)
         user = {"user_id": user_id, "points": 100}
         db.users.insert_one(user)
     user["_id"] = str(user["_id"])
     return user
 
-# ৩. টেলিগ্রাম বটের ওয়েবহুক রাউট
 @app.post("/api/webhook")
 async def handle_webhook(request: Request):
     payload = await request.json()
@@ -102,10 +184,9 @@ async def handle_webhook(request: Request):
     bot.process_new_updates([update])
     return {"status": "ok"}
 
-# ৪. বটের লজিক
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = telebot.types.InlineKeyboardMarkup()
     web_app = telebot.types.WebAppInfo(url="https://velgramads.vercel.app/")
     markup.add(telebot.types.InlineKeyboardButton("Open Ads Manager 🚀", web_app=web_app))
-    bot.send_message(message.chat.id, f"স্বাগতম {message.from_user.first_name}!\nআপনার এডস ও পয়েন্ট ম্যানেজ করতে নিচের বাটন ক্লিক করুন।", reply_markup=markup)
+    bot.send_message(message.chat.id, "স্বাগতম! আপনার এডস ও পয়েন্ট ম্যানেজ করতে নিচের বাটন ক্লিক করুন।", reply_markup=markup)
