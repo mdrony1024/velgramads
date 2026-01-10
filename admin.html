@@ -1,0 +1,44 @@
+import os
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse, FileResponse
+from pathlib import Path
+
+app = FastAPI()
+
+# ফাইলের লোকেশন ঠিক করা (Vercel-এর জন্য)
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# --- এডমিন রাউটস ---
+
+# এডমিন পেজ দেখানোর জন্য রাউট
+@app.get("/master-control") # এই ইউআরএল আপনি ছাড়া কেউ জানবে না
+async def get_admin_panel():
+    file_path = os.path.join(BASE_DIR, "admin.html")
+    return HTMLResponse(content=open(file_path, 'r').read())
+
+# এডমিন ডাটা এপিআই
+@app.get("/api/admin/stats")
+async def admin_stats(pass: str):
+    # এনভায়রনমেন্ট ভেরিয়েবল থেকে পাসওয়ার্ড চেক
+    if pass != os.getenv("ADMIN_PASSWORD"):
+        return {"error": "Unauthorized"}
+    
+    return {
+        "userCount": users_col.count_documents({}),
+        "channelCount": channels_col.count_documents({"status": "active"}),
+        "adCount": campaigns_col.count_documents({"budget": {"$gt": 0}})
+    }
+
+# পয়েন্ট আপডেট করার এপিআই
+@app.post("/api/admin/update-points")
+async def update_points(request: Request):
+    data = await request.json()
+    if data.get("pass") != os.getenv("ADMIN_PASSWORD"):
+        return {"message": "Unauthorized"}
+    
+    users_col.update_one(
+        {"user_id": str(data['targetId'])},
+        {"$inc": {"points": int(data['points'])}},
+        upsert=True
+    )
+    return {"message": f"Successfully added {data['points']} points to {data['targetId']}"}
