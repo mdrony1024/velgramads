@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Velgram Ads</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        body { background-color: #020617; color: white; padding-bottom: 80px; }
+        .glass { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; }
+        .tab-content { display: none; }
+        .active-section { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+    <div class="p-6 flex justify-between items-center">
+        <div>
+            <p class="text-[10px] text-slate-500 uppercase font-bold">Points</p>
+            <h2 class="text-3xl font-black text-blue-500 flex items-center gap-1">
+                <i class='bx bxs-zap text-yellow-400'></i> <span id="balance">--</span>
+            </h2>
+        </div>
+    </div>
+
+    <main class="p-5">
+        <section id="earn" class="tab-content active-section space-y-4">
+            <h3 class="font-bold">Earn Points</h3>
+            <div class="glass p-5 space-y-4">
+                <input type="text" id="channel_id" placeholder="@ChannelUsername" class="w-full bg-white/5 p-3 rounded-xl outline-none border border-white/10 text-white">
+                <button onclick="addChannel()" class="w-full bg-emerald-600 py-3 rounded-xl font-bold">Add Channel</button>
+            </div>
+        </section>
+
+        <section id="promote" class="tab-content space-y-4">
+            <h3 class="font-bold">Promote Post</h3>
+            <div class="glass p-5 space-y-4">
+                <input type="text" id="post_link" placeholder="https://t.me/channel/123" class="w-full bg-white/5 p-3 rounded-xl border border-white/10 text-white">
+                <input type="number" id="budget" placeholder="Budget Points" class="w-full bg-white/5 p-3 rounded-xl border border-white/10 text-white">
+                <button onclick="promotePost()" class="w-full bg-blue-600 py-3 rounded-xl font-bold">Promote Now</button>
+            </div>
+        </section>
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 bg-black/90 p-4 flex justify-around border-t border-white/5">
+        <button onclick="switchTab('earn')" class="flex flex-col items-center"><i class='bx bxs-megaphone text-xl'></i><span class="text-[10px]">Earn</span></button>
+        <button onclick="switchTab('promote')" class="flex flex-col items-center"><i class='bx bxs-rocket text-xl'></i><span class="text-[10px]">Promote</span></button>
+    </nav>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        const userId = tg.initDataUnsafe?.user?.id || 'test_user';
+
+        async function load() {
+            const res = await fetch(`/api/user/${userId}`);
+            const data = await res.json();
+            document.getElementById('balance').innerText = data.points;
+        }
+
+        async function addChannel() {
+            const channelId = document.getElementById('channel_id').value;
+            const res = await fetch('/api/add-channel', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({userId, channelId})
+            });
+            const data = await res.json();
+            alert(data.message);
+        }
+
+        async function promotePost() {
+            const link = document.getElementById('post_link').value;
+            const budget = document.getElementById('budget').value;
+            const res = await fetch('/api/promote', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({userId, link, budget})
+            });
+            const data = await res.json();
+            alert(data.message);
+            load();
+        }
+
+        function switchTab(id) {
+            document.querySelectorAll('.tab-content').forEach(s => s.classList.remove('active-section'));
+            document.getElementById(id).classList.add('active-section');
+        }
+        tg.ready();
+        load();
+    </script>
+</body>
+</html>
